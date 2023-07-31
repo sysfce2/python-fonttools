@@ -42,9 +42,6 @@ class LexerTest(unittest.TestCase):
         self.assertRaisesRegex(FeatureLibError, "Expected glyph class", lex, "@(a)")
         self.assertRaisesRegex(FeatureLibError, "Expected glyph class", lex, "@ A")
         self.assertRaisesRegex(
-            FeatureLibError, "not be longer than 63 characters", lex, "@" + ("A" * 64)
-        )
-        self.assertRaisesRegex(
             FeatureLibError, "Glyph class names must consist of", lex, "@Ab:c"
         )
 
