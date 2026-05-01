@@ -1206,3 +1206,29 @@ def test_preserveEmptyConditionSet():
     roundtripped_ds = DesignSpaceDocument.fromstring(ds_str)
     assert len(roundtripped_ds.rules) == 1
     assert len(roundtripped_ds.rules[0].conditionSets) == 1
+
+
+def test_map_backward_many_to_one():
+    """Test that map_backward handles many-to-one (flat segment) axis maps.
+
+    Regression test for https://github.com/googlefonts/ufo2ft/issues/978
+    """
+    ax = AxisDescriptor()
+    ax.name = "Weight"
+    ax.tag = "wght"
+    ax.minimum = 100
+    ax.default = 100
+    ax.maximum = 1000
+    # Many-to-one: both user=900 and user=1000 map to design=1000
+    ax.map = [
+        (100, 100),
+        (800, 780),
+        (900, 1000),
+        (1000, 1000),
+    ]
+
+    # map_backward(800) should interpolate between (780, 800) and (1000, 900),
+    # NOT between (780, 800) and (1000, 1000).
+    result = ax.map_backward(800)
+    expected = 800 + (800 - 780) / (1000 - 780) * (900 - 800)  # ~809.09
+    assert result == pytest.approx(expected)
